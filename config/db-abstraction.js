@@ -21,6 +21,17 @@ class DatabaseAbstraction {
     return data;
   }
 
+  async getAllParishes() {
+    const { data, error } = await this.db
+      .from('users')
+      .select('username')
+      .order('username');
+    
+    if (error) throw error;
+    
+    return data.map(item => item.username);
+  }
+
   // Household operations
   async createHousehold(householdData) {
     const { data, error } = await this.db

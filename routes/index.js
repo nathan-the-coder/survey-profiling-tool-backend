@@ -293,4 +293,15 @@ router.get('/participant/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve participant details" });
   }
 });
+
+router.get('/parishes', async (req, res) => {
+  try {
+    const parishes = await dbAbstraction.getAllParishes();
+    res.json(parishes);
+  } catch (err) {
+    console.error("Get Parishes Error:", err);
+    res.status(500).json({ error: "Failed to fetch parishes" });
+  }
+});
+
 module.exports = router;
