@@ -1,142 +1,188 @@
 require('dotenv').config();
 
-// Database abstraction layer that works with both MySQL and Supabase
+// Database abstraction layer using Supabase client
 class DatabaseAbstraction {
   constructor(db) {
-    this.db = db;
-  }
-
-  // Generic query executor
-  async query(sql, params = []) {
-    return await this.db.execute(sql, params);
+    this.db = db.getClient();
   }
 
   // User operations
   async getUserByUsername(username) {
-    const [users] = await this.query(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
-    );
-    return users.length > 0 ? users[0] : null;
+    const { data, error } = await this.db
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      throw error;
+    }
+    
+    return data;
   }
 
   // Household operations
   async createHousehold(householdData) {
-    const keys = Object.keys(householdData);
-    const values = Object.values(householdData);
-    const placeholders = keys.map(() => '?').join(', ');
+    const { data, error } = await this.db
+      .from('households')
+      .insert(householdData)
+      .select()
+      .single();
     
-    const [result] = await this.query(
-      `INSERT INTO households (${keys.join(', ')}) VALUES (${placeholders})`,
-      values
-    );
+    if (error) throw error;
     
-    return result.insertId;
+    return data.household_id;
   }
 
   async getHousehold(householdId) {
-    const [households] = await this.query(
-      'SELECT * FROM households WHERE household_id = ?',
-      [householdId]
-    );
-    return households.length > 0 ? households[0] : null;
+    const { data, error } = await this.db
+      .from('households')
+      .select('*')
+      .eq('household_id', householdId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+    
+    return data;
   }
 
   // Family member operations
   async createFamilyMember(memberData) {
-    const keys = Object.keys(memberData);
-    const values = Object.values(memberData);
-    const placeholders = keys.map(() => '?').join(', ');
+    const { data, error } = await this.db
+      .from('family_members')
+      .insert(memberData)
+      .select()
+      .single();
     
-    const [result] = await this.query(
-      `INSERT INTO family_members (${keys.join(', ')}) VALUES (${placeholders})`,
-      values
-    );
+    if (error) throw error;
     
-    return result.insertId;
+    return data.member_id;
   }
 
   async getFamilyMembersByHousehold(householdId) {
-    const [members] = await this.query(
-      'SELECT * FROM family_members WHERE household_id = ? ORDER BY member_id',
-      [householdId]
-    );
-    return members;
+    const { data, error } = await this.db
+      .from('family_members')
+      .select('*')
+      .eq('household_id', householdId)
+      .order('member_id');
+    
+    if (error) throw error;
+    
+    return data || [];
   }
 
   async getMemberById(memberId) {
-    const [members] = await this.query(
-      'SELECT * FROM family_members WHERE member_id = ?',
-      [memberId]
-    );
-    return members.length > 0 ? members[0] : null;
+    const { data, error } = await this.db
+      .from('family_members')
+      .select('*')
+      .eq('member_id', memberId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+    
+    return data;
   }
 
   // Health conditions operations
   async createHealthConditions(healthData) {
-    const keys = Object.keys(healthData);
-    const values = Object.values(healthData);
-    const placeholders = keys.map(() => '?').join(', ');
+    const { data, error } = await this.db
+      .from('health_conditions')
+      .insert(healthData)
+      .select()
+      .single();
     
-    const [result] = await this.query(
-      `INSERT INTO health_conditions (${keys.join(', ')}) VALUES (${placeholders})`,
-      values
-    );
+    if (error) throw error;
     
-    return result.insertId;
+    return data.health_condition_id;
   }
 
   async getHealthConditions(householdId) {
-    const [conditions] = await this.query(
-      'SELECT * FROM health_conditions WHERE household_id = ?',
-      [householdId]
-    );
-    return conditions.length > 0 ? conditions[0] : null;
+    const { data, error } = await this.db
+      .from('health_conditions')
+      .select('*')
+      .eq('household_id', householdId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+    
+    return data;
   }
 
   // Socio-economic operations
   async createSocioEconomic(socioData) {
-    const keys = Object.keys(socioData);
-    const values = Object.values(socioData);
-    const placeholders = keys.map(() => '?').join(', ');
+    const { data, error } = await this.db
+      .from('socio_economic')
+      .insert(socioData)
+      .select()
+      .single();
     
-    const [result] = await this.query(
-      `INSERT INTO socio_economic (${keys.join(', ')}) VALUES (${placeholders})`,
-      values
-    );
+    if (error) throw error;
     
-    return result.insertId;
+    return data.socio_economic_id;
   }
 
   async getSocioEconomic(householdId) {
-    const [socio] = await this.query(
-      'SELECT * FROM socio_economic WHERE household_id = ?',
-      [householdId]
-    );
-    return socio.length > 0 ? socio[0] : null;
+    const { data, error } = await this.db
+      .from('socio_economic')
+      .select('*')
+      .eq('household_id', householdId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+    
+    return data;
   }
 
   // Search operations
   async searchParticipants(query, userRole, userParish) {
-    let whereClause = 'WHERE fm.full_name LIKE ?';
-    let queryParams = [`%${query}%`];
-    
+    let dbQuery = this.db
+      .from('family_members')
+      .select(`
+        member_id as id,
+        full_name,
+        relation_to_head_code,
+        sex_code,
+        age,
+        households!inner (
+          purok_gimong,
+          barangay_name,
+          municipality,
+          parish_name
+        )
+      `)
+      .ilike('full_name', `%${query}%`)
+      .limit(10)
+      .order('full_name');
+
+    // Filter by parish if not archdiocese
     if (userRole !== 'archdiocese' && userParish) {
-      whereClause += ' AND h.parish_name = ?';
-      queryParams.push(userParish);
+      dbQuery = dbQuery.eq('households.parish_name', userParish);
     }
+
+    const { data, error } = await dbQuery;
     
-    const [results] = await this.query(`
-      SELECT DISTINCT fm.member_id as id, fm.full_name, fm.relation_to_head_code, fm.sex_code, fm.age,
-             h.purok_gimong, h.barangay_name, h.municipality, h.parish_name
-      FROM family_members fm
-      INNER JOIN households h ON fm.household_id = h.household_id
-      ${whereClause}
-      ORDER BY fm.full_name ASC
-      LIMIT 10
-    `, queryParams);
+    if (error) throw error;
     
-    return results;
+    // Flatten the nested household data
+    return data.map(item => ({
+      id: item.id,
+      full_name: item.full_name,
+      relation_to_head_code: item.relation_to_head_code,
+      sex_code: item.sex_code,
+      age: item.age,
+      purok_gimong: item.households.purok_gimong,
+      barangay_name: item.households.barangay_name,
+      municipality: item.households.municipality,
+      parish_name: item.households.parish_name
+    }));
   }
 
   // Transaction support

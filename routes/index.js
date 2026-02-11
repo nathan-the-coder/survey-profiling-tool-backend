@@ -24,24 +24,22 @@ router.post('/login', async (req, res) => {
   
   try {
     const user = await dbAbstraction.getUserByUsername(username);
-    const users = user ? [user] : [];
+    console.log('Database query result:', user);
 
-    console.log('Database query result:', users);
-
-    if (users.length === 0) {
+    if (!user) {
       console.log('User not found:', username);
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    console.log('Stored password:', users[0].password);
+    console.log('Stored password:', user.password);
     console.log('Provided password:', password);
-    console.log('Password match:', users[0].password === password);
+    console.log('Password match:', user.password === password);
 
-    if (users[0].password !== password) {
+    if (user.password !== password) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', user: { username: users[0].username } });
+    res.status(200).json({ message: 'Login successful', user: { username: user.username } });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
