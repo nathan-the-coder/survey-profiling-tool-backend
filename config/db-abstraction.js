@@ -146,7 +146,7 @@ class DatabaseAbstraction {
     let dbQuery = this.db
       .from('family_members')
       .select(`
-        member_id as id,
+        member_id,
         full_name,
         relation_to_head_code,
         sex_code,
@@ -171,9 +171,9 @@ class DatabaseAbstraction {
     
     if (error) throw error;
     
-    // Flatten the nested household data
+    // Flatten the nested household data and rename member_id to id
     return data.map(item => ({
-      id: item.id,
+      id: item.member_id,
       full_name: item.full_name,
       relation_to_head_code: item.relation_to_head_code,
       sex_code: item.sex_code,
