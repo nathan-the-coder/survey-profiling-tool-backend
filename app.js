@@ -33,7 +33,7 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username', 'x-username'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
