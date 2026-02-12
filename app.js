@@ -14,19 +14,11 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5500',
-  'https://survey-profiling-tool.vercel.app'
+  ''
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: 'https://survey-profiling-tool.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
   credentials: true, // This now works because origin is not '*'
