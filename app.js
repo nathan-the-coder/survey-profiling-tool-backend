@@ -13,7 +13,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1);
 
 const allowedOrigins = [
-  'http://localhost:5500',
+  'http://localhost:3000',
   'https://survey-profiling-tool.vercel.app'
 ];
 
