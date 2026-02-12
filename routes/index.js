@@ -132,7 +132,7 @@ router.post('/submit-survey', async (req, res) => {
     if (primary?.m_name && Array.isArray(primary.m_name)) {
       const memberInserts = primary.m_name.map((name, i) => {
         if (!name) return null;
-        return dbAbstraction.createFamilyMember({
+        const memberData = {
           household_id: householdId,
           role: primary.m_role?.[i] || 'Member',
           full_name: name,
@@ -147,7 +147,13 @@ router.post('/submit-survey', async (req, res) => {
           occupation: primary.m_job?.[i],
           status_of_work_code: primary.m_work_status?.[i],
           fully_immunized_child: toBoolean(primary.m_immunized?.[i])
+        };
+        console.log(`Creating member ${i}:`, {
+          civil_status_code: primary.m_civil?.[i],
+          relation_to_head_code: primary.m_relation?.[i],
+          sex_code: primary.m_sex?.[i]
         });
+        return dbAbstraction.createFamilyMember(memberData);
       }).filter(Boolean);
       
       await Promise.all(memberInserts);
