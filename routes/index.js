@@ -144,6 +144,10 @@ router.post('/submit-survey', async (req, res) => {
           console.log('relation_to_head_code being sent:', primary.m_relation[i]);
           console.log('relation_to_head_code length:', primary.m_relation[i]?.length || 0);
 
+          civil_status_map = {
+            'Civil': 1,
+          }
+
           const memberData = {
             household_id: householdId,
             role: primary.m_role?.[i] || 'Member',
@@ -151,7 +155,7 @@ router.post('/submit-survey', async (req, res) => {
             relation_to_head_code: primary.m_relation[i],
             sex_code: primary.m_sex[i],
             age: primary.m_age[i],
-            civil_status_code: primary.m_civil[i],
+            civil_status_code: civil_status_map[primary.m_civil[i]] | 2,
             religion_code: primary.m_religion[i],
             sacraments_code: primary.m_sacraments[i],
             is_studying: primary.m_studying[i],
