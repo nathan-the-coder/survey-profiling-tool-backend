@@ -62,6 +62,8 @@ class DatabaseAbstraction {
   // Family member operations
   async createFamilyMember(memberData) {
     console.log('createFamilyMember called with:', memberData);
+    console.log('Data being sent to Supabase:', memberData);
+    
     const { data, error } = await this.db
       .from('family_members')
       .insert(memberData)
