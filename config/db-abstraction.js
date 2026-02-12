@@ -76,13 +76,23 @@ class DatabaseAbstraction {
   }
 
   async getMemberById(memberId) {
+    // Convert to number to ensure type match
+    const numericMemberId = parseInt(memberId, 10);
+    console.log(`[Backend] Querying family_members with member_id: ${numericMemberId}, original: ${memberId}`);
+    
     const { data, error } = await this.client
       .from('family_members')
       .select('*')
-      .eq('member_id', memberId)
+      .eq('member_id', numericMemberId)
       .single();
     
-    return this.#handleError(error);
+    if (error) {
+      console.log(`[Backend] Error querying member_id ${numericMemberId}:`, error);
+      return null;
+    }
+    
+    console.log(`[Backend] Found member:`, data);
+    return data;
   }
 
   async createHealthConditions(healthData) {
