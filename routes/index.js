@@ -101,7 +101,7 @@ router.post('/submit-survey', async (req, res) => {
     if (primary?.head_name) {
       const headData = {
         household_id: householdId,
-        role: 'HH Head',
+        role: '1',
         full_name: val(primary, 'head_name'),
         type_of_marriage: val(primary, 'head_marriage'),
         religion_code: val(primary, 'head_religion'),
@@ -118,7 +118,7 @@ router.post('/submit-survey', async (req, res) => {
     if (primary?.spouse_name) {
       const spouseData = {
         household_id: householdId,
-        role: 'Spouse',
+        role: '2',
         full_name: val(primary, 'spouse_name') || '',
         type_of_marriage: val(primary, 'spouse_marriage') || '',
         religion_code: val(primary, 'spouse_religion') || '',
@@ -131,38 +131,38 @@ router.post('/submit-survey', async (req, res) => {
       await dbAbstraction.createFamilyMember(spouseData);
     }
 
-      // 3. Insert other household members
-      if (primary?.m_name && Array.isArray(primary.m_name) && primary.m_name.length > 0) {
-        console.log('Processing family members array, length:', primary.m_name.length);
-        for (let i = 0; i < primary.m_name.length; i++) {
-          if (primary.m_name[i]) {
-            console.log(`Inserting family member ${i}:`, {
-              role: primary.m_role?.[i],
-              full_name: primary.m_name[i],
-              relation: primary.m_relation?.[i]
-            });
-            const memberData = {
-              household_id: householdId,
-              role: primary.m_role?.[i] || 'Member',
-              full_name: primary.m_name[i],
-              relation_to_head_code: primary.m_relation[i],
-              sex_code: primary.m_sex[i],
-              age: primary.m_age[i],
-              civil_status_code: primary.m_civil[i],
-              religion_code: primary.m_religion[i],
-              sacraments_code: primary.m_sacraments[i],
-              is_studying: primary.m_studying[i],
-              highest_educ_attainment: primary.m_educ[i],
-              occupation: primary.m_job[i],
-              status_of_work_code: primary.m_work_status[i],
-              fully_immunized_child: primary.m_immunized[i]
-            };
-            console.log('Member data to insert:', memberData);
-            await dbAbstraction.createFamilyMember(memberData);
-          }
+    // 3. Insert other household members
+    if (primary?.m_name && Array.isArray(primary.m_name) && primary.m_name.length > 0) {
+      console.log('Processing family members array, length:', primary.m_name.length);
+      for (let i = 0; i < primary.m_name.length; i++) {
+        if (primary.m_name[i]) {
+          console.log(`Inserting family member ${i}:`, {
+            role: primary.m_role?.[i],
+            full_name: primary.m_name[i],
+            relation: primary.m_relation?.[i]
+          });
+          const memberData = {
+            household_id: householdId,
+            role: primary.m_role?.[i] || '3',
+            full_name: primary.m_name[i],
+            relation_to_head_code: primary.m_relation[i],
+            sex_code: primary.m_sex[i],
+            age: primary.m_age[i],
+            civil_status_code: primary.m_civil[i],
+            religion_code: primary.m_religion[i],
+            sacraments_code: primary.m_sacraments[i],
+            is_studying: primary.m_studying[i],
+            highest_educ_attainment: primary.m_educ[i],
+            occupation: primary.m_job[i],
+            status_of_work_code: primary.m_work_status[i],
+            fully_immunized_child: primary.m_immunized[i]
+          };
+          console.log('Member data to insert:', memberData);
+          await dbAbstraction.createFamilyMember(memberData);
         }
-        console.log(`Inserted ${primary.m_name.length} family members`);
       }
+      console.log(`Inserted ${primary.m_name.length} family members`);
+    }
 
     // 4. Insert into 'health_conditions' - matching actual DB columns
     const healthData = {
