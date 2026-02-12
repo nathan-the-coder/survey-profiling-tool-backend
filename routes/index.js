@@ -11,6 +11,24 @@ router.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Survey Profiling API', status: 'Online' });
 });
 
+router.get('/test-connection', async (req, res) => {
+  try {
+    const parishes = await dbAbstraction.getAllParishes();
+    res.json({ 
+      status: 'connected',
+      message: 'Backend is connected to database',
+      parishesCount: parishes.length
+    });
+  } catch (err) {
+    console.error('Connection test error:', err);
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Database connection failed',
+      error: err.message 
+    });
+  }
+});
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   
