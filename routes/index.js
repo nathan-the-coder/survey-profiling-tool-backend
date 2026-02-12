@@ -169,7 +169,7 @@ router.post('/submit-survey', async (req, res) => {
     await dbAbstraction.createHealthConditions(healthData);
     console.log('Health conditions created');
 
-    await dbAbstraction.createSocioEconomic({
+    const socioData = {
       household_id: householdId,
       income_monthly_code: getValue(socio, 'income_monthly'),
       expenses_weekly_code: getValue(socio, 'expenses_weekly'),
