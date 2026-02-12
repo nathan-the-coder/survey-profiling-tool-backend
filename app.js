@@ -50,7 +50,7 @@ app.use('/users', usersRouter);
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(err.status || 500).json({
-    error: isProduction ? 'Internal Server Error' : err.message
+    error: isProduction ? 'Internal Server Error states' : err.message
   });
 });
 
