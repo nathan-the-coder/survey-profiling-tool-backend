@@ -63,8 +63,15 @@ router.post('/submit-survey', async (req, res) => {
     return null;
   };
   
+  const toNumber = (val) => {
+    if (val === '' || val === null || val === undefined) return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  };
+  
   const validateValue = (value) => (value === undefined || value === '' ? null : value);
   const getValue = (obj, key) => (obj && obj[key] ? validateValue(obj[key]) : null);
+  const getNumber = (obj, key) => toNumber(getValue(obj, key));
   
   try {
     const householdData = {
@@ -77,8 +84,8 @@ router.post('/submit-survey', async (req, res) => {
       urban_rural_classification: getValue(general, 'urban_ruralClassification'),
       parish_name: getValue(general, 'nameOfParish'),
       diocese_prelature: getValue(general, 'diocesePrelatureName'),
-      years_residency: getValue(general, 'yrOfResInTheCommunity'),
-      num_family_members: getValue(general, 'numOfFamMembers'),
+      years_residency: getNumber(general, 'yrOfResInTheCommunity'),
+      num_family_members: getNumber(general, 'numOfFamMembers'),
       family_structure: getValue(general, 'familyStructure'),
       local_dialect: getValue(general, 'lclDialect'),
       ethnicity: getValue(general, 'ethnicity'),
@@ -100,7 +107,7 @@ router.post('/submit-survey', async (req, res) => {
       civil_status_code: getValue(primary, 'civil_status_code') || '',
       religion_code: getValue(primary, 'head_religion'),
       sex_code: getValue(primary, 'head_sex'),
-      age: getValue(primary, 'head_age'),
+      age: getNumber(primary, 'head_age'),
       highest_educ_attainment: getValue(primary, 'head_educ'),
       occupation: getValue(primary, 'head_job'),
       status_of_work_code: getValue(primary, 'head_work_status')
@@ -112,7 +119,7 @@ router.post('/submit-survey', async (req, res) => {
       type_of_marriage: getValue(primary, 'spouse_marriage') || '',
       religion_code: getValue(primary, 'spouse_religion') || '',
       sex_code: getValue(primary, 'spouse_sex') || '',
-      age: getValue(primary, 'spouse_age') || '',
+      age: getNumber(primary, 'spouse_age') || '',
       highest_educ_attainment: getValue(primary, 'spouse_educ') || '',
       occupation: getValue(primary, 'spouse_job') || '',
       status_of_work_code: getValue(primary, 'spouse_work_status') || ''
@@ -127,7 +134,7 @@ router.post('/submit-survey', async (req, res) => {
           full_name: name,
           relation_to_head_code: primary.m_relation?.[i],
           sex_code: primary.m_sex?.[i],
-          age: primary.m_age?.[i],
+          age: getNumber({ m_age: primary.m_age?.[i] }, 'm_age'),
           civil_status_code: primary.m_civil?.[i],
           religion_code: primary.m_religion?.[i],
           sacraments_code: primary.m_sacraments?.[i],
@@ -162,7 +169,7 @@ router.post('/submit-survey', async (req, res) => {
       savings_location_code: getValue(socio, 'savings_location'),
       house_lot_ownership_code: getValue(socio, 'house_ownership'),
       house_classification_code: getValue(socio, 'house_classification'),
-      land_area_hectares: getValue(socio, 'land_area'),
+      land_area_hectares: getNumber(socio, 'land_area'),
       dist_from_church_code: getValue(socio, 'distance_church'),
       dist_from_market_code: getValue(socio, 'distance_market'),
       organizations: getValue(socio, 'organizations') || [],
