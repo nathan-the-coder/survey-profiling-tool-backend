@@ -228,24 +228,33 @@ router.get('/search-participants', async (req, res) => {
 
 router.get('/participant/:id', async (req, res) => {
   const { id } = req.params;
+  console.log(`[Backend] Fetching participant details for ID: ${id}`);
   
   if (!id || isNaN(id)) {
+    console.log(`[Backend] Invalid participant ID: ${id}`);
     return res.status(400).json({ error: 'Invalid participant ID' });
   }
   
   try {
+    console.log(`[Backend] Looking up family member with member_id: ${id}`);
     const member = await dbAbstraction.getMemberById(id);
     
     if (!member) {
-      return res.status(404).json({ error: 'Participant not found' });
+      console.log(`[Backend] Family member not found with ID: ${id}`);
+      return res.status(404).json({ error: `Family member with ID ${id} not found` });
     }
     
+    console.log(`[Backend] Found member:`, member);
     const householdId = member.household_id;
+    console.log(`[Backend] Looking up household with household_id: ${householdId}`);
     const household = await dbAbstraction.getHousehold(householdId);
     
     if (!household) {
-      return res.status(404).json({ error: 'Household not found' });
+      console.log(`[Backend] Household not found with ID: ${householdId}`);
+      return res.status(404).json({ error: `Household with ID ${householdId} not found` });
     }
+    
+    console.log(`[Backend] Found household:`, household);
     
     if (req.userRole !== 'archdiocese' && req.userParish && household.parish_name !== req.userParish) {
       return res.status(403).json({ error: 'Access denied: You can only view data from your own parish' });
