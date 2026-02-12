@@ -44,13 +44,23 @@ class DatabaseAbstraction {
   }
 
   async getHousehold(householdId) {
+    // Convert to number to ensure type match
+    const numericHouseholdId = parseInt(householdId, 10);
+    console.log(`[Backend] Querying households with household_id: ${numericHouseholdId}`);
+    
     const { data, error } = await this.client
       .from('households')
       .select('*')
-      .eq('household_id', householdId)
+      .eq('household_id', numericHouseholdId)
       .single();
     
-    return this.#handleError(error);
+    if (error) {
+      console.log(`[Backend] Error querying household_id ${numericHouseholdId}:`, error);
+      return null;
+    }
+    
+    console.log(`[Backend] Found household:`, data);
+    return data;
   }
 
   async createFamilyMember(memberData) {
