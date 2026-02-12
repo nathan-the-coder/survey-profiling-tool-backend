@@ -12,18 +12,25 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
+const allowedOrigins = [
+  'http://localhost:5500',
+  'https://survey-profiling-app.vercel.app'
+];
 
 app.use(cors({
-  origin: '*',
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-username', 'X-Username'],
-  credentials: true,
-  optionsSuccessStatus: 200,
-  preflightContinue: false
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
+  credentials: true, // This now works because origin is not '*'
+  optionsSuccessStatus: 200
 }));
 
 app.use(logger(isProduction ? 'combined' : 'dev'));
