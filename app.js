@@ -8,9 +8,14 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
 const app = express();
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false
+}));
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -19,19 +24,26 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(null, false);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username', 'x-username'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
 
-app.options('*', cors());
+app.use((err, req, res, next) => {
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+  next(err);
+});
 
 app.use(logger(isProduction ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
