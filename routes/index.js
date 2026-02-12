@@ -141,7 +141,6 @@ router.post('/submit-survey', async (req, res) => {
             full_name: primary.m_name[i],
             relation: primary.m_relation?.[i]
           });
-          console.log('Member data to insert:', memberData);
           console.log('relation_to_head_code being sent:', primary.m_relation[i]);
           console.log('relation_to_head_code length:', primary.m_relation[i]?.length || 0);
 
@@ -161,6 +160,8 @@ router.post('/submit-survey', async (req, res) => {
             status_of_work_code: primary.m_work_status[i],
             fully_immunized_child: primary.m_immunized[i]
           };
+
+              console.log('Member data to insert:', memberData);
           
           await dbAbstraction.createFamilyMember(memberData);
         }
