@@ -11,6 +11,8 @@ const usersRouter = require('./routes/users');
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 
+app.set('trust proxy', 1);
+
 const allowedOrigins = [
   'https://survey-profiling-tool.vercel.app',
   'http://localhost:3000',
