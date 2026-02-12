@@ -96,7 +96,7 @@ router.post('/submit-survey', async (req, res) => {
     const householdId = await dbAbstraction.createHousehold(householdData);
     console.log('Household inserted with ID:', householdId);
 
-    // 2. Insert parents profile into 'family_members' table
+// 2. Insert parents profile into 'family_members' table
     // Insert Household Head
     if (primary?.head_name) {
       const headData = {
@@ -104,9 +104,9 @@ router.post('/submit-survey', async (req, res) => {
         role: 'HH Head',
         full_name: val(primary, 'head_name'),
         type_of_marriage: val(primary, 'head_marriage'),
+        civil_status_code: val(primary, 'civil_status_code') || '',
         religion_code: val(primary, 'head_religion'),
         sex_code: val(primary, 'head_sex'),
-        civil_status_code: primary.m_civil[i],
         age: val(primary, 'head_age'),
         highest_educ_attainment: val(primary, 'head_educ'),
         occupation: val(primary, 'head_job'),
@@ -121,7 +121,7 @@ router.post('/submit-survey', async (req, res) => {
         household_id: householdId,
         role: 'Spouse',
         full_name: val(primary, 'spouse_name') || '',
-        civil_status_code: primary.m_civil[i],
+        civil_status_code: val(primary, 'civil_status_code') || '',
         type_of_marriage: val(primary, 'spouse_marriage') || '',
         religion_code: val(primary, 'spouse_religion') || '',
         sex_code: val(primary, 'spouse_sex') || '',
