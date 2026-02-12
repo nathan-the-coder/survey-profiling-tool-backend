@@ -101,7 +101,7 @@ router.post('/submit-survey', async (req, res) => {
     if (primary?.head_name) {
       const headData = {
         household_id: householdId,
-        role: 'Head',
+        role: 'HH Head',
         full_name: val(primary, 'head_name'),
         type_of_marriage: val(primary, 'head_marriage'),
         religion_code: val(primary, 'head_religion'),
