@@ -57,6 +57,15 @@ router.post('/submit-survey', async (req, res) => {
   
   const { general, primary, health, socio } = req.body.data;
   
+  const toBoolean = (val) => {
+    if (val === '1' || val === 1 || val === true) return true;
+    if (val === '2' || val === 2 || val === false || val === '66' || val === null || val === '') return false;
+    return null;
+  };
+  
+  const validateValue = (value) => (value === undefined || value === '' ? null : value);
+  const getValue = (obj, key) => (obj && obj[key] ? validateValue(obj[key]) : null);
+  
   try {
     const householdData = {
       purok_gimong: getValue(general, 'purokGimong'),
@@ -122,11 +131,11 @@ router.post('/submit-survey', async (req, res) => {
           civil_status_code: primary.m_civil?.[i],
           religion_code: primary.m_religion?.[i],
           sacraments_code: primary.m_sacraments?.[i],
-          is_studying: primary.m_studying?.[i],
+          is_studying: toBoolean(primary.m_studying?.[i]),
           highest_educ_attainment: primary.m_educ?.[i],
           occupation: primary.m_job?.[i],
           status_of_work_code: primary.m_work_status?.[i],
-          fully_immunized_child: primary.m_immunized?.[i]
+          fully_immunized_child: toBoolean(primary.m_immunized?.[i])
         });
       }).filter(Boolean);
       
@@ -149,7 +158,7 @@ router.post('/submit-survey', async (req, res) => {
       household_id: householdId,
       income_monthly_code: getValue(socio, 'income_monthly'),
       expenses_weekly_code: getValue(socio, 'expenses_weekly'),
-      has_savings: getValue(socio, 'has_savings'),
+      has_savings: toBoolean(getValue(socio, 'has_savings')),
       savings_location_code: getValue(socio, 'savings_location'),
       house_lot_ownership_code: getValue(socio, 'house_ownership'),
       house_classification_code: getValue(socio, 'house_classification'),
