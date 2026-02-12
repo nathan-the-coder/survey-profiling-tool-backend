@@ -11,13 +11,42 @@ const usersRouter = require('./routes/users');
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 
-app.use(helmet());
+const allowedOrigins = [
+  'https://survey-profiling-tool.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5500'
+];
+
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({
-  origin: isProduction ? process.env.ALLOWED_ORIGINS?.split(',') : '*',
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Username');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
