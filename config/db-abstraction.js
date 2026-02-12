@@ -59,7 +59,7 @@ class DatabaseAbstraction {
     return data;
   }
 
-  // Family member operations
+    // Family member operations
   async createFamilyMember(memberData) {
     console.log('createFamilyMember called with:', memberData);
     console.log('Data being sent to Supabase:', memberData);
@@ -75,6 +75,7 @@ class DatabaseAbstraction {
       throw error;
     }
     
+    console.log('Supabase insert result:', data);
     return data.member_id;
   }
 
