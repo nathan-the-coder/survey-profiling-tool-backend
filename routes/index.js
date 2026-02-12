@@ -179,7 +179,13 @@ router.post('/submit-survey', async (req, res) => {
     res.status(200).json({ success: true, message: 'Survey data saved successfully', id: householdId });
   } catch (err) {
     console.error('Survey submission error:', err);
-    res.status(500).json({ error: err.message || 'Internal Server Error' });
+    console.error('Error details:', JSON.stringify({
+      code: err.code,
+      message: err.message,
+      hint: err.hint,
+      details: err.details
+    }));
+    res.status(500).json({ error: err.message || 'Internal Server Error', details: err.code });
   }
 });
 
