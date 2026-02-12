@@ -14,7 +14,7 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5500',
-  'https://survey-profiling-app.vercel.app'
+  'https://survey-profiling-tool.vercel.app'
 ];
 
 app.use(cors({
