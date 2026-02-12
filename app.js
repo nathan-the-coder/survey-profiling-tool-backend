@@ -20,7 +20,7 @@ app.use(helmet({
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-username', 'X-Username'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
@@ -28,7 +28,7 @@ app.use(cors({
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Username');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-username, X-Username');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
