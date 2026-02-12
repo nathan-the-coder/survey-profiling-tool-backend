@@ -14,14 +14,20 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5500',
-  ''
+  'https://survey-profiling-tool.vercel.app'
 ];
 
 app.use(cors({
-  origin: 'https://survey-profiling-tool.vercel.app',
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username'],
-  credentials: true, // This now works because origin is not '*'
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username', 'x-username'],
+  credentials: true,
   optionsSuccessStatus: 200
 }));
 
