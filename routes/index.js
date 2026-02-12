@@ -321,4 +321,18 @@ router.get('/parishes', async (req, res) => {
   }
 });
 
+// Get all participants endpoint
+router.get('/all-participants', async (req, res) => {
+  try {
+    console.log(`Fetching all participants for user: ${req.userParish} (${req.userRole})`);
+    
+    const results = await dbAbstraction.getAllParticipants(req.userRole, req.userParish);
+    console.log('All participants fetched:', results.length, 'items');
+    res.json(results);
+  } catch (err) {
+    console.error("Get All Participants Error:", err);
+    res.status(500).json({ error: "Failed to fetch participants", details: err.message });
+  }
+});
+
 module.exports = router;

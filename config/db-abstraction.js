@@ -203,6 +203,48 @@ class DatabaseAbstraction {
     }));
   }
 
+  // Get all participants
+  async getAllParticipants(userRole, userParish) {
+    let dbQuery = this.db
+      .from('family_members')
+      .select(`
+        member_id,
+        full_name,
+        relation_to_head_code,
+        sex_code,
+        age,
+        households!inner (
+          purok_gimong,
+          barangay_name,
+          municipality,
+          parish_name
+        )
+      `)
+      .order('full_name');
+
+    // Filter by parish if not archdiocese
+    if (userRole !== 'archdiocese' && userParish) {
+      dbQuery = dbQuery.eq('households.parish_name', userParish);
+    }
+
+    const { data, error } = await dbQuery;
+    
+    if (error) throw error;
+    
+    // Flatten the nested household data and rename member_id to id
+    return data.map(item => ({
+      id: item.member_id,
+      full_name: item.full_name,
+      relation_to_head_code: item.relation_to_head_code,
+      sex_code: item.sex_code,
+      age: item.age,
+      purok_gimong: item.households.purok_gimong,
+      barangay_name: item.households.barangay_name,
+      municipality: item.households.municipality,
+      parish_name: item.households.parish_name
+    }));
+  }
+
   // Transaction support
   async withTransaction(callback) {
     // For Supabase, use client-side transaction simulation
