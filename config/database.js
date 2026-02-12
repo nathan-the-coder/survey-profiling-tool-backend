@@ -1,28 +1,14 @@
 require('dotenv').config();
-
 const { createClient } = require('@supabase/supabase-js');
 
-class DatabaseManager {
-  constructor() {
-    this.client = null;
-    this.init();
-  }
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
-  async init() {
-    // Use Supabase only
-    console.log('Initializing Supabase connection...');
-    this.client = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
-    console.log('Supabase client initialized');
-  }
-
-  getClient() {
-    return this.client;
-  }
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('Missing Supabase environment variables');
+  process.exit(1);
 }
 
-const db = new DatabaseManager();
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-module.exports = { db };
+module.exports = { supabase };
