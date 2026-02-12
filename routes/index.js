@@ -155,7 +155,9 @@ router.post('/submit-survey', async (req, res) => {
       house_classification_code: getValue(socio, 'house_classification'),
       land_area_hectares: getValue(socio, 'land_area'),
       dist_from_church_code: getValue(socio, 'distance_church'),
-      dist_from_market_code: getValue(socio, 'distance_market')
+      dist_from_market_code: getValue(socio, 'distance_market'),
+      organizations: getValue(socio, 'organizations') || [],
+      organizations_others_text: getValue(socio, 'organizations_others_text')
     });
 
     res.status(200).json({ success: true, message: 'Survey data saved successfully', id: householdId });

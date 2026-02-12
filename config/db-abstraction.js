@@ -109,7 +109,20 @@ class DatabaseAbstraction {
   async createSocioEconomic(socioData) {
     const { data, error } = await this.client
       .from('socio_economic')
-      .insert(socioData)
+      .insert({
+        household_id: socioData.household_id,
+        income_monthly_code: socioData.income_monthly_code,
+        expenses_weekly_code: socioData.expenses_weekly_code,
+        has_savings: socioData.has_savings,
+        savings_location_code: socioData.savings_location_code,
+        house_lot_ownership_code: socioData.house_lot_ownership_code,
+        house_classification_code: socioData.house_classification_code,
+        land_area_hectares: socioData.land_area_hectares,
+        dist_from_church_code: socioData.dist_from_church_code,
+        dist_from_market_code: socioData.dist_from_market_code,
+        organizations: socioData.organizations || [],
+        organizations_others_text: socioData.organizations_others_text
+      })
       .select()
       .single();
     
