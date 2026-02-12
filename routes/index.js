@@ -127,36 +127,31 @@ router.post('/submit-survey', async (req, res) => {
       await dbAbstraction.createFamilyMember(spouseData);
     }
 
-    // 3. Insert other household members
-    if (primary?.m_name && Array.isArray(primary.m_name) && primary.m_name.length > 0) {
-      const memberQuery = `INSERT INTO family_members (
-        household_id, full_name, relation_to_head_code, sex_code, age, civil_status_code, 
-        religion_code, sacraments_code, is_studying, highest_educ_attainment, 
-        occupation, status_of_work_code, fully_immunized_child
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-      for (let i = 0; i < primary.m_name.length; i++) {
-        if (primary.m_name[i]) { // Only insert if name exists
-          const memberData = {
-            household_id: householdId,
-            full_name: fix(primary.m_name[i]),
-            relation_to_head_code: fix(primary.m_relation[i]),
-            sex_code: fix(primary.m_sex[i]),
-            age: fix(primary.m_age[i]),
-            civil_status_code: fix(primary.m_civil[i]),
-            religion_code: fix(primary.m_religion[i]),
-            sacraments_code: fix(primary.m_sacraments[i]),
-            is_studying: fix(primary.m_studying[i]),
-            highest_educ_attainment: fix(primary.m_educ[i]),
-            occupation: fix(primary.m_job[i]),
-            status_of_work_code: fix(primary.m_work_status[i]),
-            fully_immunized_child: fix(primary.m_immunized[i])
-          };
-          await dbAbstraction.createFamilyMember(memberData);
+      // 3. Insert other household members
+      if (primary?.m_name && Array.isArray(primary.m_name) && primary.m_name.length > 0) {
+        for (let i = 0; i < primary.m_name.length; i++) {
+          if (primary.m_name[i]) { // Only insert if name exists
+            const memberData = {
+              household_id: householdId,
+              role: fix(primary.m_role?.[i]) || 'Member',
+              full_name: fix(primary.m_name[i]),
+              relation_to_head_code: fix(primary.m_relation[i]),
+              sex_code: fix(primary.m_sex[i]),
+              age: fix(primary.m_age[i]),
+              civil_status_code: fix(primary.m_civil[i]),
+              religion_code: fix(primary.m_religion[i]),
+              sacraments_code: fix(primary.m_sacraments[i]),
+              is_studying: fix(primary.m_studying[i]),
+              highest_educ_attainment: fix(primary.m_educ[i]),
+              occupation: fix(primary.m_job[i]),
+              status_of_work_code: fix(primary.m_work_status[i]),
+              fully_immunized_child: fix(primary.m_immunized[i])
+            };
+            await dbAbstraction.createFamilyMember(memberData);
+          }
         }
+        console.log(`Inserted ${primary.m_name.length} family members`);
       }
-      console.log(`Inserted ${primary.m_name.length} family members`);
-    }
 
     // 4. Insert into 'health_conditions' - matching actual DB columns
     const healthData = {
