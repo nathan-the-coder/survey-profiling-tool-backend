@@ -8,7 +8,7 @@ const validateValue = (value) => (value === undefined || value === '' ? null : v
 const getValue = (obj, key) => (obj && obj[key] ? validateValue(obj[key]) : null);
 
 router.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the Survey Profiling API', status: 'Online' });
+  res.json({ message: 'Welcome to the Survey Profiling API', status: 'Online', version: '1.0' });
 });
 
 router.get('/test-connection', async (req, res) => {
