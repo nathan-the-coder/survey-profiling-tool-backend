@@ -117,14 +117,14 @@ router.post('/submit-survey', async (req, res) => {
     if (primary?.spouse_name) {
       const spouseData = {
         household_id: householdId,
-        full_name: val(primary, 'spouse_name'),
-        type_of_marriage: val(primary, 'spouse_marriage'),
-        religion_code: val(primary, 'spouse_religion'),
-        sex_code: val(primary, 'spouse_sex'),
-        age: val(primary, 'spouse_age'),
-        highest_educ_attainment: val(primary, 'spouse_educ'),
-        occupation: val(primary, 'spouse_job'),
-        status_of_work_code: val(primary, 'spouse_work_status')
+        full_name: val(primary, 'spouse_name') || '',
+        type_of_marriage: val(primary, 'spouse_marriage') || '',
+        religion_code: val(primary, 'spouse_religion') || '',
+        sex_code: val(primary, 'spouse_sex') || '',
+        age: val(primary, 'spouse_age') || '',
+        highest_educ_attainment: val(primary, 'spouse_educ') || '',
+        occupation: val(primary, 'spouse_job') || '',
+        status_of_work_code: val(primary, 'spouse_work_status') || ''
       };
       await dbAbstraction.createFamilyMember(spouseData);
     }
