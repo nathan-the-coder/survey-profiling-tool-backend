@@ -61,13 +61,17 @@ class DatabaseAbstraction {
 
   // Family member operations
   async createFamilyMember(memberData) {
+    console.log('createFamilyMember called with:', memberData);
     const { data, error } = await this.db
       .from('family_members')
       .insert(memberData)
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw error;
+    }
     
     return data.member_id;
   }
