@@ -93,7 +93,9 @@ router.post('/submit-survey', async (req, res) => {
       date_of_listing: getValue(socio, 'listing_date')
     };
 
+    console.log('Creating household with data:', JSON.stringify(householdData));
     const householdId = await dbAbstraction.createHousehold(householdData);
+    console.log('Household created, ID:', householdId);
     
     const insertMember = async (role, data) => {
       if (data.full_name) {
@@ -112,6 +114,7 @@ router.post('/submit-survey', async (req, res) => {
       occupation: getValue(primary, 'head_job'),
       status_of_work_code: getValue(primary, 'head_work_status')
     });
+    console.log('HH Head created');
 
     await insertMember('Spouse', {
       full_name: getValue(primary, 'spouse_name') || '',
@@ -124,6 +127,7 @@ router.post('/submit-survey', async (req, res) => {
       occupation: getValue(primary, 'spouse_job') || '',
       status_of_work_code: getValue(primary, 'spouse_work_status') || ''
     });
+    console.log('Spouse created');
 
     if (primary?.m_name && Array.isArray(primary.m_name)) {
       const memberInserts = primary.m_name.map((name, i) => {
@@ -148,8 +152,9 @@ router.post('/submit-survey', async (req, res) => {
       
       await Promise.all(memberInserts);
     }
+    console.log('Family members created');
 
-    await dbAbstraction.createHealthConditions({
+    const healthData = {
       household_id: householdId,
       common_illness_codes: getValue(health, 'common_illness'),
       treatment_source_code: getValue(health, 'treatment_source'),
@@ -159,7 +164,10 @@ router.post('/submit-survey', async (req, res) => {
       garbage_disposal_code: getValue(health, 'garbage_disposal'),
       toilet_facility_code: getValue(health, 'toilet_type'),
       water_to_toilet_distance_code: getValue(health, 'toilet_distance')
-    });
+    };
+    console.log('Creating health conditions:', JSON.stringify(healthData));
+    await dbAbstraction.createHealthConditions(healthData);
+    console.log('Health conditions created');
 
     await dbAbstraction.createSocioEconomic({
       household_id: householdId,
@@ -174,7 +182,10 @@ router.post('/submit-survey', async (req, res) => {
       dist_from_market_code: getValue(socio, 'distance_market'),
       organizations: getValue(socio, 'organizations') || [],
       organizations_others_text: getValue(socio, 'organizations_others_text')
-    });
+    };
+    console.log('Creating socio-economic:', JSON.stringify(socioData));
+    await dbAbstraction.createSocioEconomic(socioData);
+    console.log('Socio-economic created');
 
     res.status(200).json({ success: true, message: 'Survey data saved successfully', id: householdId });
   } catch (err) {
