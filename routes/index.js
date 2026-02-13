@@ -89,7 +89,7 @@ router.post('/submit-survey', async (req, res) => {
       barangay_name: getValue(general, 'barangayName'),
       municipality: getValue(general, 'municipality-select') || getValue(general, 'municipalityName'),
       province: getValue(general, 'provinceName'),
-      mode_of_transportation: getValue(general, 'modeOfTransportation'),
+      mode_of_transportation: getArrayValue(general, 'modeOfTransportation'),
       road_structure: getValue(general, 'road_Structure'),
       urban_rural_classification: getValue(general, 'urban_ruralClassification'),
       parish_name: getValue(general, 'nameOfParish'),
