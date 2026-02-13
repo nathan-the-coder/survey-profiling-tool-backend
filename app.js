@@ -51,7 +51,9 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const username = req.headers['x-username'];
-  req.userRole = username === 'Archdiocese of Tuguegarao' ? 'archdiocese' : 'parish';
+  const isArchdiocese = username === 'Archdiocese of Tuguegarao';
+  const isAdmin = username === 'SJCB_Admin' || username.toLowerCase() === 'admin';
+  req.userRole = isArchdiocese || isAdmin ? 'archdiocese' : 'parish';
   req.userParish = username;
   next();
 });
