@@ -50,7 +50,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
-  const username = req.headers['x-username'];
+  const username = req.headers['x-username'] || '';
   const isArchdiocese = username === 'Archdiocese of Tuguegarao';
   const isAdmin = username === 'SJCB_Admin' || username.toLowerCase() === 'admin';
   req.userRole = isArchdiocese || isAdmin ? 'archdiocese' : 'parish';
