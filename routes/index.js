@@ -12,9 +12,9 @@ const getArrayValue = (obj, key) => {
   if (!obj || !obj[key]) return null;
   const val = obj[key];
   if (Array.isArray(val)) {
-    return val.length > 0 ? val.join(',') : null;
+    return val.length > 0 ? val : null;
   }
-  return val ? String(val) : null;
+  return val ? [val] : null;
 };
 
 router.get('/', (req, res) => {
