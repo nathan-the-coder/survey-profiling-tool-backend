@@ -123,7 +123,11 @@ class DatabaseAbstraction {
       .eq('household_id', householdId)
       .single();
     
-    return this.#handleError(error);
+    if (error) {
+      console.error('Error fetching health conditions:', error);
+      return null;
+    }
+    return data;
   }
 
   async createSocioEconomic(socioData) {
@@ -157,7 +161,11 @@ class DatabaseAbstraction {
       .eq('household_id', householdId)
       .single();
     
-    return this.#handleError(error);
+    if (error) {
+      console.error('Error fetching socio economic:', error);
+      return null;
+    }
+    return data;
   }
 
   #buildParticipantQuery(queryBuilder, userRole, userParish) {
