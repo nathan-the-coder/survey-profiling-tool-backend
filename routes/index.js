@@ -5,7 +5,17 @@ const DatabaseAbstraction = require('../config/db-abstraction');
 const dbAbstraction = new DatabaseAbstraction();
 
 const validateValue = (value) => (value === undefined || value === '' ? null : value);
+
 const getValue = (obj, key) => (obj && obj[key] ? validateValue(obj[key]) : null);
+
+const getArrayValue = (obj, key) => {
+  if (!obj || !obj[key]) return null;
+  const val = obj[key];
+  if (Array.isArray(val)) {
+    return val.length > 0 ? val.join(',') : null;
+  }
+  return val ? String(val) : null;
+};
 
 router.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Survey Profiling API', status: 'Online', version: '1.0' });
@@ -141,12 +151,14 @@ router.post('/submit-survey', async (req, res) => {
           age: getNumber({ m_age: primary.m_age?.[i] }, 'm_age'),
           civil_status_code: primary.m_civil?.[i],
           religion_code: primary.m_religion?.[i],
-          sacraments_code: primary.m_sacraments?.[i],
+          sacraments_code: getArrayValue({ m_sacraments: primary.m_sacraments }, 'm_sacraments'),
           is_studying: toBoolean(primary.m_studying?.[i]),
           highest_educ_attainment: primary.m_educ?.[i],
           occupation: primary.m_job?.[i],
           status_of_work_code: primary.m_work_status?.[i],
-          fully_immunized_child: toBoolean(primary.m_immunized?.[i])
+          fully_immunized_child: toBoolean(primary.m_immunized?.[i]),
+          organization_code: getArrayValue({ m_organization: primary.m_organization }, 'm_organization'),
+          position: primary.m_position?.[i] || null
         };
         console.log(`Creating member ${i}:`, {
           civil_status_code: primary.m_civil?.[i],
@@ -162,13 +174,13 @@ router.post('/submit-survey', async (req, res) => {
 
     const healthData = {
       household_id: householdId,
-      common_illness_codes: getValue(health, 'common_illness'),
-      treatment_source_code: getValue(health, 'treatment_source'),
-      potable_water_source_code: getValue(health, 'water_source'),
-      lighting_source_code: getValue(health, 'lighting_source'),
-      cooking_source_code: getValue(health, 'cooking_source'),
-      garbage_disposal_code: getValue(health, 'garbage_disposal'),
-      toilet_facility_code: getValue(health, 'toilet_type'),
+      common_illness_codes: getArrayValue(health, 'common_illness'),
+      treatment_source_code: getArrayValue(health, 'treatment_source'),
+      potable_water_source_code: getArrayValue(health, 'water_source'),
+      lighting_source_code: getArrayValue(health, 'lighting_source'),
+      cooking_source_code: getArrayValue(health, 'cooking_source'),
+      garbage_disposal_code: getArrayValue(health, 'garbage_disposal'),
+      toilet_facility_code: getArrayValue(health, 'toilet_type'),
       water_to_toilet_distance_code: getValue(health, 'toilet_distance')
     };
     console.log('Creating health conditions:', JSON.stringify(healthData));
@@ -180,13 +192,13 @@ router.post('/submit-survey', async (req, res) => {
       income_monthly_code: getValue(socio, 'income_monthly'),
       expenses_weekly_code: getValue(socio, 'expenses_weekly'),
       has_savings: toBoolean(getValue(socio, 'has_savings')),
-      savings_location_code: getValue(socio, 'savings_location'),
-      house_lot_ownership_code: getValue(socio, 'house_ownership'),
-      house_classification_code: getValue(socio, 'house_classification'),
+      savings_location_code: getArrayValue(socio, 'savings_location'),
+      house_lot_ownership_code: getArrayValue(socio, 'house_ownership'),
+      house_classification_code: getArrayValue(socio, 'house_classification'),
       land_area_hectares: getNumber(socio, 'land_area'),
       dist_from_church_code: getValue(socio, 'distance_church'),
       dist_from_market_code: getValue(socio, 'distance_market'),
-      organizations: getValue(socio, 'organizations') || [],
+      organizations: getArrayValue(socio, 'organizations'),
       organizations_others_text: getValue(socio, 'organizations_others_text')
     };
     console.log('Creating socio-economic:', JSON.stringify(socioData));
