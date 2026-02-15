@@ -174,6 +174,7 @@ class DatabaseAbstraction {
       .select(`
         member_id,
         full_name,
+        role,
         relation_to_head_code,
         sex_code,
         age,
@@ -196,6 +197,7 @@ class DatabaseAbstraction {
     return data.map(item => ({
       id: item.member_id,
       full_name: item.full_name,
+      role: item.role,
       relation_to_head_code: item.relation_to_head_code,
       sex_code: item.sex_code,
       age: item.age,

@@ -100,7 +100,7 @@ router.post('/submit-survey', async (req, res) => {
       local_dialect: getValue(general, 'lclDialect'),
       ethnicity: getValue(general, 'ethnicity'),
       missionary_companion: getValue(socio, 'missionary_companion'),
-      date_of_listing: getValue(socio, 'listing_date')
+      date_of_listing: getValue(socio, 'listening_date')
     };
 
     console.log('Creating household with data:', JSON.stringify(householdData));
