@@ -173,6 +173,7 @@ class DatabaseAbstraction {
       .from('family_members')
       .select(`
         member_id,
+        household_id,
         full_name,
         role,
         relation_to_head_code,
@@ -197,6 +198,7 @@ class DatabaseAbstraction {
   #formatParticipantResult(data) {
     return data.map(item => ({
       id: item.member_id,
+      household_id: item.household_id,
       full_name: item.full_name,
       role: item.role,
       relation_to_head_code: item.relation_to_head_code,
