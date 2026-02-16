@@ -312,4 +312,131 @@ router.get('/all-participants', async (req, res) => {
   }
 });
 
+router.delete('/participant/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid participant ID' });
+  }
+  
+  try {
+    // First get the member to find the household_id
+    const member = await dbAbstraction.getMemberById(id);
+    
+    if (!member) {
+      return res.status(404).json({ error: 'Participant not found' });
+    }
+    
+    const householdId = member.household_id;
+    
+    // Delete the family member
+    await dbAbstraction.deleteFamilyMember(id);
+    
+    // Check if there are other members in this household
+    const remainingMembers = await dbAbstraction.getFamilyMembersByHousehold(householdId);
+    
+    // If no remaining members, delete the household and related records
+    if (remainingMembers.length === 0) {
+      await dbAbstraction.deleteHousehold(householdId);
+    }
+    
+    res.json({ message: 'Participant deleted successfully' });
+  } catch (err) {
+    console.error('Delete participant error:', err);
+    res.status(500).json({ error: 'Failed to delete participant' });
+  }
+});
+
+router.put('/participant/:id', async (req, res) => {
+  const { id } = req.params;
+  const { household, family_members, health_conditions, socio_economic } = req.body;
+  
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid participant ID' });
+  }
+  
+  try {
+    const member = await dbAbstraction.getMemberById(id);
+    if (!member) {
+      return res.status(404).json({ error: 'Participant not found' });
+    }
+    
+    const householdId = member.household_id;
+    
+    if (household) {
+      await dbAbstraction.updateHousehold(householdId, {
+        purok_gimong: household.purok_gimong,
+        barangay_name: household.barangay_name,
+        municipality: household.municipality,
+        province: household.province,
+        urban_rural_classification: household.urban_rural_classification,
+        parish_name: household.parish_name,
+        diocese_prelature: household.diocese_prelature,
+        years_residency: household.years_residency,
+        num_family_members: household.num_family_members,
+        family_structure: household.family_structure,
+        local_dialect: household.local_dialect,
+        ethnicity: household.ethnicity
+      });
+    }
+    
+    if (family_members && Array.isArray(family_members)) {
+      for (const fm of family_members) {
+        if (fm.member_id) {
+          await dbAbstraction.updateFamilyMember(fm.member_id, {
+            full_name: fm.full_name,
+            role: fm.role,
+            relation_to_head_code: fm.relation_to_head_code,
+            sex_code: fm.sex_code,
+            age: fm.age,
+            civil_status_code: fm.civil_status_code,
+            religion_code: fm.religion_code,
+            sacraments_code: fm.sacraments_code,
+            is_studying: fm.is_studying,
+            highest_educ_attainment: fm.highest_educ_attainment,
+            occupation: fm.occupation,
+            status_of_work_code: fm.status_of_work_code,
+            organization_code: fm.organization_code,
+            position: fm.position
+          });
+        }
+      }
+    }
+    
+    if (health_conditions) {
+      await dbAbstraction.updateHealthConditions(householdId, {
+        common_illness_codes: health_conditions.common_illness_codes,
+        treatment_source_code: health_conditions.treatment_source_code,
+        potable_water_source_code: health_conditions.potable_water_source_code,
+        lighting_source_code: health_conditions.lighting_source_code,
+        cooking_source_code: health_conditions.cooking_source_code,
+        garbage_disposal_code: health_conditions.garbage_disposal_code,
+        toilet_facility_code: health_conditions.toilet_facility_code,
+        water_to_toilet_distance_code: health_conditions.water_to_toilet_distance_code
+      });
+    }
+    
+    if (socio_economic) {
+      await dbAbstraction.updateSocioEconomic(householdId, {
+        income_monthly_code: socio_economic.income_monthly_code,
+        expenses_weekly_code: socio_economic.expenses_weekly_code,
+        has_savings: socio_economic.has_savings,
+        savings_location_code: socio_economic.savings_location_code,
+        house_lot_ownership_code: socio_economic.house_lot_ownership_code,
+        house_classification_code: socio_economic.house_classification_code,
+        land_area_hectares: socio_economic.land_area_hectares,
+        dist_from_church_code: socio_economic.dist_from_church_code,
+        dist_from_market_code: socio_economic.dist_from_market_code,
+        organizations: socio_economic.organizations,
+        organizations_others_text: socio_economic.organizations_others_text
+      });
+    }
+    
+    res.json({ message: 'Participant updated successfully' });
+  } catch (err) {
+    console.error('Update participant error:', err);
+    res.status(500).json({ error: 'Failed to update participant', details: err.message });
+  }
+});
+
 module.exports = router;

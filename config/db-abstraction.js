@@ -178,6 +178,7 @@ class DatabaseAbstraction {
         relation_to_head_code,
         sex_code,
         age,
+        occupation,
         households!inner (
           purok_gimong,
           barangay_name,
@@ -201,6 +202,7 @@ class DatabaseAbstraction {
       relation_to_head_code: item.relation_to_head_code,
       sex_code: item.sex_code,
       age: item.age,
+      occupation: item.occupation,
       purok_gimong: item.households.purok_gimong,
       barangay_name: item.households.barangay_name,
       municipality: item.households.municipality,
@@ -228,6 +230,89 @@ class DatabaseAbstraction {
     if (error) throw error;
 
     return this.#formatParticipantResult(data);
+  }
+
+  async deleteFamilyMember(memberId) {
+    const { error } = await this.client
+      .from('family_members')
+      .delete()
+      .eq('member_id', memberId);
+    
+    if (error) throw error;
+  }
+
+  async deleteHousehold(householdId) {
+    // Delete related records first
+    await this.client.from('health_conditions').delete().eq('household_id', householdId);
+    await this.client.from('socio_economic').delete().eq('household_id', householdId);
+    
+    // Then delete the household
+    const { error } = await this.client
+      .from('households')
+      .delete()
+      .eq('household_id', householdId);
+    
+    if (error) throw error;
+  }
+
+  async updateFamilyMember(memberId, memberData) {
+    const { data, error } = await this.client
+      .from('family_members')
+      .update(memberData)
+      .eq('member_id', memberId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateHousehold(householdId, householdData) {
+    const { data, error } = await this.client
+      .from('households')
+      .update(householdData)
+      .eq('household_id', householdId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateHealthConditions(householdId, healthData) {
+    const { data, error } = await this.client
+      .from('health_conditions')
+      .update(healthData)
+      .eq('household_id', householdId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateSocioEconomic(householdId, socioData) {
+    const { data, error } = await this.client
+      .from('socio_economic')
+      .update({
+        income_monthly_code: socioData.income_monthly_code,
+        expenses_weekly_code: socioData.expenses_weekly_code,
+        has_savings: socioData.has_savings,
+        savings_location_code: socioData.savings_location_code,
+        house_lot_ownership_code: socioData.house_lot_ownership_code,
+        house_classification_code: socioData.house_classification_code,
+        land_area_hectares: socioData.land_area_hectares,
+        dist_from_church_code: socioData.dist_from_church_code,
+        dist_from_market_code: socioData.dist_from_market_code,
+        organizations: socioData.organizations || [],
+        organizations_others_text: socioData.organizations_others_text
+      })
+      .eq('household_id', householdId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
   }
 
   async withTransaction(callback) {
