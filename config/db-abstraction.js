@@ -24,12 +24,12 @@ class DatabaseAbstraction {
 
   async getAllParishes() {
     const { data, error } = await this.client
-      .from('users')
-      .select('username')
-      .order('username');
+      .from('parishes')
+      .select('name')
+      .order('name');
     
     if (error) throw error;
-    return data.map(item => item.username);
+    return data.map(item => item.name);
   }
 
   async createHousehold(householdData) {
