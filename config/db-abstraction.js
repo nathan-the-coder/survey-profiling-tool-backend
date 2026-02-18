@@ -24,12 +24,14 @@ class DatabaseAbstraction {
 
   async getAllParishes() {
     const { data, error } = await this.client
-      .from('parishes')
-      .select('name')
-      .order('name');
+      .from('users')
+      .select('username')
+      .not('username', 'eq', 'SJCB_Admin')
+      .not('username', 'eq', 'Archdiocese of Tuguegarao')
+      .order('username');
     
     if (error) throw error;
-    return data.map(item => item.name);
+    return data.map(item => item.username);
   }
 
   async createHousehold(householdData) {
