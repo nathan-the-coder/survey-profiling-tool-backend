@@ -53,7 +53,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', user: { username: user.username } });
+    // Determine user role
+    const isArchdiocese = username === 'Archdiocese of Tuguegarao';
+    const isAdmin = username === 'SJCB_Admin' || username.toLowerCase().includes('admin');
+    const role = isArchdiocese ? 'archdiocese' : (isAdmin ? 'admin' : 'parish');
+
+    res.status(200).json({ message: 'Login successful', user: { username: user.username, role } });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
