@@ -19,7 +19,8 @@ app.use(helmet({
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://survey-profiling-tool.vercel.app'
+  'https://survey-profiling-tool.vercel.app',
+  'https://survey-profiling-tool-backend.vercel.app'
 ];
 
 app.use(cors({
