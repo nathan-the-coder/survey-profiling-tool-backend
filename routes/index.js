@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
     const isAdmin = username === 'SJCB_Admin' || username.toLowerCase().includes('admin');
     const role = isArchdiocese ? 'archdiocese' : (isAdmin ? 'admin' : 'parish');
 
-    res.status(200).json({ message: 'Login successful', user: { username: user.username, role } });
+    res.status(200).json({ message: 'Login successful', user: { username: user.username, role, parish_id: user.parish_id } });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
