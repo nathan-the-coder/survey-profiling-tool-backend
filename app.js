@@ -20,12 +20,19 @@ app.use(helmet({
 const allowedOrigins = [
   'http://localhost:3000',
   'https://survey-profiling-tool.vercel.app',
+  'https://survey-profiling-tool-frontend.vercel.app',
   'https://survey-profiling-tool-backend.vercel.app'
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
+    
+    // In production, allow all origins for Vercel deployments
+    if (isProduction) {
+      return callback(null, true);
+    }
     
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
