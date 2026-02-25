@@ -25,8 +25,8 @@ class DatabaseAbstraction {
   async getAllParishes() {
     const { data, error } = await this.client
       .from('parishes')
-      .select('name, location')
-      .order('name');
+      .select('name, location, sort_order')
+      .order('sort_order');
     
     if (error) throw error;
     return data.map(item => `${item.name}, ${item.location}`);
