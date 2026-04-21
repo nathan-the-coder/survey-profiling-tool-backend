@@ -168,7 +168,7 @@ class DatabaseAbstraction {
     return data;
   }
 
-  #buildParticipantQuery(queryBuilder, userRole, userParish) {
+  #buildParticipantQuery(queryBuilder, userRole, userParish, userParishId) {
     queryBuilder = queryBuilder
       .from('family_members')
       .select(`
@@ -184,12 +184,17 @@ class DatabaseAbstraction {
           purok_gimong,
           barangay_name,
           municipality,
-          parish_name
+          parish_name,
+          parish_id
         )
       `);
 
-    if (userRole !== 'archdiocese' && userParish) {
-      queryBuilder = queryBuilder.eq('households.parish_name', userParish);
+    if (userRole !== 'archdiocese' && userRole !== 'admin') {
+      if (userParishId) {
+        queryBuilder = queryBuilder.eq('households.parish_id', userParishId);
+      } else if (userParish) {
+        queryBuilder = queryBuilder.eq('households.parish_name', userParish);
+      }
     }
 
     return queryBuilder;
@@ -208,12 +213,13 @@ class DatabaseAbstraction {
       purok_gimong: item.households.purok_gimong,
       barangay_name: item.households.barangay_name,
       municipality: item.households.municipality,
-      parish_name: item.households.parish_name
+      parish_name: item.households.parish_name,
+      parish_id: item.households.parish_id
     }));
   }
 
-  async searchParticipants(query, userRole, userParish) {
-    let dbQuery = this.#buildParticipantQuery(this.client, userRole, userParish)
+  async searchParticipants(query, userRole, userParish, userParishId) {
+    let dbQuery = this.#buildParticipantQuery(this.client, userRole, userParish, userParishId)
       .ilike('full_name', `%${query}%`)
       .limit(10)
       .order('full_name');
@@ -224,8 +230,8 @@ class DatabaseAbstraction {
     return this.#formatParticipantResult(data);
   }
 
-  async getAllParticipants(userRole, userParish) {
-    let dbQuery = this.#buildParticipantQuery(this.client, userRole, userParish)
+  async getAllParticipants(userRole, userParish, userParishId) {
+    let dbQuery = this.#buildParticipantQuery(this.client, userRole, userParish, userParishId)
       .order('full_name');
 
     const { data, error } = await dbQuery;

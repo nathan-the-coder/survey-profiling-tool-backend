@@ -235,7 +235,7 @@ router.get('/search-participants', async (req, res) => {
   }
   
   try {
-    const results = await dbAbstraction.searchParticipants(q, req.userRole, req.userParish);
+    const results = await dbAbstraction.searchParticipants(q, req.userRole, req.userParish, req.userParishId);
     res.json(results);
   } catch (err) {
     console.error('Search error:', err.message);
@@ -273,8 +273,16 @@ router.get('/participant/:id', async (req, res) => {
     
     console.log(`[Backend] Found household:`, household);
     
-    if (req.userRole !== 'archdiocese' && req.userParish && household.parish_name !== req.userParish) {
-      return res.status(403).json({ error: 'Access denied: You can only view data from your own parish' });
+    if (req.userRole !== 'archdiocese' && req.userRole !== 'admin') {
+      const userParishId = req.userParishId;
+      const userParish = req.userParish;
+      
+      const isParishIdMismatch = userParishId && household.parish_id && Number(household.parish_id) !== Number(userParishId);
+      const isParishNameMismatch = !userParishId && userParish && household.parish_name !== userParish;
+      
+      if (isParishIdMismatch || isParishNameMismatch) {
+        return res.status(403).json({ error: 'Access denied: You can only view data from your own parish' });
+      }
     }
     
     const [family_members, health_conditions, socio_economic] = await Promise.all([
@@ -289,7 +297,8 @@ router.get('/participant/:id', async (req, res) => {
       health_conditions: health_conditions || {},
       socio_economic: socio_economic || {},
       userRole: req.userRole,
-      userParish: req.userParish
+      userParish: req.userParish,
+      userParishId: req.userParishId
     });
   } catch (err) {
     console.error('Participant details error:', err);
@@ -309,7 +318,7 @@ router.get('/parishes', async (req, res) => {
 
 router.get('/all-participants', async (req, res) => {
   try {
-    const results = await dbAbstraction.getAllParticipants(req.userRole, req.userParish);
+    const results = await dbAbstraction.getAllParticipants(req.userRole, req.userParish, req.userParishId);
     res.json(results);
   } catch (err) {
     console.error('Get all participants error:', err);
