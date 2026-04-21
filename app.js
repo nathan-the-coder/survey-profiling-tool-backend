@@ -41,7 +41,7 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username', 'x-username', 'cache-control', 'pragma'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Username', 'x-username', 'X-Parish-Id', 'x-parish-id', 'X-User-Role', 'x-user-role', 'cache-control', 'pragma'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
@@ -59,10 +59,15 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const username = req.headers['x-username'] || '';
-  const isArchdiocese = username === 'Archdiocese of Tuguegarao';
-  const isAdmin = username === 'SJCB_Admin' || username.toLowerCase() === 'admin';
+  const parishId = req.headers['x-parish-id'];
+  const userRole = req.headers['x-user-role'];
+  
+  const isArchdiocese = username === 'Archdiocese of Tuguegarao' || userRole === 'archdiocese';
+  const isAdmin = username === 'SJCB_Admin' || username.toLowerCase() === 'admin' || userRole === 'admin';
+  
   req.userRole = isArchdiocese || isAdmin ? 'archdiocese' : 'parish';
   req.userParish = username;
+  req.userParishId = parishId ? Number(parishId) : null;
   next();
 });
 
