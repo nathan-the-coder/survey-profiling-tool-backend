@@ -67,7 +67,14 @@ app.use((req, res, next) => {
   
   req.userRole = isArchdiocese || isAdmin ? 'archdiocese' : 'parish';
   req.userParish = username;
-  req.userParishId = parishId ? Number(parishId) : null;
+  
+  // Robustly handle parishId from headers
+  if (parishId && !isNaN(parishId) && parishId !== 'null' && parishId !== 'undefined') {
+    req.userParishId = Number(parishId);
+  } else {
+    req.userParishId = null;
+  }
+  
   next();
 });
 
